@@ -30,8 +30,9 @@
 <script>
 
     let geojson;
-    let covid_data;
     let proj;
+    let covid_data;
+    let covid_data_latest;
     let d_format = d3.timeFormat("%d %B %Y");
     let d_parse = d3.timeParse("%m-%d-%y");
     let geoGenerator = d3.geoPath().projection(proj);
@@ -68,13 +69,41 @@
             return d3.scaleSequential([min,max],d3.interpolateReds);
         }
 
+    function add_covid_table(append_to){
+        d3.select(append_to)
+            .append
+
+    }
+
+    function create_colour_scale(steps, min_max, attach_to)
+    {
+        var steps = 4;
+        var min_max = [100,1000];
+        var attach_to = "body"
+        var arr = [[]]
+
+        var min_max_spread = d3.scaleLinear()
+            .domain([0,steps-1])
+            .range(min_max);
+
+        for(var i=0; i<steps; i++)
+          arr[i] = [
+            heat_colour(min_max)(min_max_spread(i)),
+            min_max_spread(i)
+          ];
+
+        return arr;
+    }
+
+    let scale = create_colour_scale(4,[100,1000],"body")
+
     function handle_mouseover(a, geojson_data) {
 
         let lan_name = geojson_data.properties.LnNamn;
         let lan_kod = geojson_data.properties.LnKod;
-        let data_datum = d_format(d_parse(covid_data.Datum));
-        let lan_cases = covid_data[lan_name];
-        let total_cases = covid_data.Total;
+        let data_datum = d_format(d_parse(covid_data_latest.Datum));
+        let lan_cases = covid_data_latest[lan_name];
+        let total_cases = covid_data_latest.Total;
 
         d3.select(".data_div")
             .html(
@@ -113,49 +142,51 @@
             .selectAll('path')
             .data(geojson.features)
 
-        let minmax = find_min_max(covid_data,1);
+        let minmax = find_min_max(covid_data_latest,1);
 
         u.enter()
            .append('path')
-           .attr("fill", "#eee")
            .attr("fill", d =>
-                 heat_colour(minmax)(covid_data[d.properties.LnNamn]))
+                 heat_colour(minmax)(covid_data_latest[d.properties.LnNamn]))
 // for debugging: .attr("fake", d=> console.log(d.properties.LnNamn))
            .attr('d', geoGenerator)
     }
 
     /* adjust CSV data to correspond to codes
        in GeoJSON file data/lan_7.0.geojson: */
+
     d3.csv('data/Folkhalsomyndigheten_Covid19_latest.csv',
-            (d => covid_data = {
-                Datum: d.Statistikdatum,
-                Total: d.Totalt_antal_fall,
-                Blekinge: d.Blekinge,
-                Dalarnas: d.Dalarna,
-                Gotlands: d.Gotland,
-                Gävleborgs: d.Gävleborg,
-                Hallands: d.Halland,
-                Jämtlands: d.Jämtland_Härjedalen,
-                Jönköpings: d.Jönköping,
-                Kalmar: d.Kalmar,
-                Kronobergs: d.Kronoberg,
-                Norrbottens: d.Norrbotten,
-                Skåne: d.Skåne,
-                Stockholms: d.Stockholm,
-                Södermanlands: d.Sörmland,
-                Uppsala: d.Uppsala,
-                Värmlands: d.Värmland,
-                Västerbottens: d.Västerbotten,
-                Västernorrlands: d.Västernorrland,
-                Västmanlands: d.Västmanland,
-                "Västra Götalands": d.Västra_Götaland,
-                Örebro: d.Örebro,
-                Östergötlands: d.Östergötland
-            })
-       )
+       (d => { return {
+           Datum: d.Statistikdatum,
+           Total: d.Totalt_antal_fall,
+           Blekinge: d.Blekinge,
+           Dalarnas: d.Dalarna,
+           Gotlands: d.Gotland,
+           Gävleborgs: d.Gävleborg,
+           Hallands: d.Halland,
+           Jämtlands: d.Jämtland_Härjedalen,
+           Jönköpings: d.Jönköping,
+           Kalmar: d.Kalmar,
+           Kronobergs: d.Kronoberg,
+           Norrbottens: d.Norrbotten,
+           Skåne: d.Skåne,
+           Stockholms: d.Stockholm,
+           Södermanlands: d.Sörmland,
+           Uppsala: d.Uppsala,
+           Värmlands: d.Värmland,
+           Västerbottens: d.Västerbotten,
+           Västernorrlands: d.Västernorrland,
+           Västmanlands: d.Västmanland,
+           "Västra Götalands": d.Västra_Götaland,
+           Örebro: d.Örebro,
+           Östergötlands: d.Östergötland
+           };}
+        )
+        ).then(d => {covid_data = d ;
+                covid_data_latest = covid_data[covid_data.length-1]})
 
     d3.json('data/lan_7.0.geojson')
-        .then(d => { geojson = d })
+        .then(d => geojson = d )
         .then(update)
         .then(clickable)
 
