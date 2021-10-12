@@ -75,6 +75,34 @@
 
     }
 
+    function add_table(){
+
+        var columns = covid_data.columns
+
+        d3.select("div")
+            .append("table")
+            .attr("class", "tabell")
+            .append("thead")
+            .append("tr")
+            .selectAll("th")
+            .data(columns)
+            .join("th")
+            .text(d => d)
+
+        d3.select(".tabell")
+                .append("tbody")
+
+        d3.select("tbody")
+            .selectAll("tr")
+            .data(covid_data)
+            .enter()
+            .append("tr")
+            .selectAll("td")
+            .data(d => Object.values(d))
+            .enter().append("td")
+            .text(d => d);
+    }
+
     function create_colour_scale(steps, min_max, attach_to)
     {
         var steps = 4;
@@ -150,6 +178,8 @@
                  heat_colour(minmax)(covid_data_latest[d.properties.LnNamn]))
 // for debugging: .attr("fake", d=> console.log(d.properties.LnNamn))
            .attr('d', geoGenerator)
+
+        // add_table();
     }
 
     /* adjust CSV data to correspond to codes
@@ -188,6 +218,7 @@
     d3.json('data/lan_7.0.geojson')
         .then(d => geojson = d )
         .then(update)
+        .then(add_table)
         .then(clickable)
 
 </script>
