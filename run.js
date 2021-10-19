@@ -6,6 +6,6 @@ const path = require('path')
 app.use(express.static('static'))
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
+  console.log(`The joy-app listening at http://localhost:${port}`)
 })
 

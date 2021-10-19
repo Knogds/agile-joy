@@ -5,6 +5,7 @@ var geojson;
    after that connects mouse events */
 d3.json('data/lan_7.0.geojson')
     .then(d => geojson = d)
+    .then(import_population_data)
     .then(import_agedata)
     .then(draw_map)
     .then(clickable);

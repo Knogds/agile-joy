@@ -2,25 +2,33 @@
 /* Map projection settings */
 let proj;
 let geoGenerator = d3.geoPath().projection(proj);
+var lan_name;
 
 let state = {
     type:       'Mercator',
-    scale:      900,
+    scale:      1000,
     translateX: 170,
-    translateY: 250,
+    translateY: 270,
     centerLon:  15,
     centerLat:  63
 }
 
-var data_div_title;
-var data_div_type;
-var data_div_value;
+function update_data_div(){
+    let lan_cases = get_age_data_by_county_and_age_group(lan_name, agespan);
+    let lan_population = get_population_data_by_age_group_and_county(lan_name, agespan);
+    let ratio = get_age_data_by_age_group_and_county_per_capita(lan_name, agespan);
 
-/* Updates the #data_div (right of the map) with text */
-function update_data_div(title, type, value){
+    data_div_title = lan_name;
+    data_div_row0 = "Antal vaccinerade: " + lan_cases;
+    data_div_row1 = "Befolkning " + agespan + ": " + lan_population;
+    data_div_row2 = "Antal vaccinerade per capita: "
+                        + d3.format(".2%")(ratio);
+
     d3.select("#data_div")
-        .html('<div class="data">' + title + "</div>" +
-              "<br/>" + type + ": " + value)
+        .html('<div class="data title">' + data_div_title + '</div>' +
+              '<div class="data row0">' + data_div_row0 + '</div>' +
+              '<div class="data row1">' + data_div_row1 + '</div>' +
+              '<div class="data row2">' + data_div_row2 + '</div>')
 }
 
 /* Spread the d3.interpolateReds colour scale between min and max,
@@ -37,21 +45,13 @@ function heat_colour([min,max]){
         return d3.scaleSequential([min,max],d3.interpolateReds);
 }
 
-
-
 /* Updates the map */
 function update() {
     /* [min,max] "agespan" values
        for all counties */
-    var minmax = d3.extent(get_age_data_by_age_group(agespan));
+    var minmax = d3.extent(get_age_data_by_age_group_per_capita(agespan));
 
-    console.log("updating agespan: " + agespan)
-
-    data_div_type = agespan;
-    data_div_value = get_age_data_by_county_and_age_group(data_div_title,
-                                                          agespan);
-
-    update_data_div(data_div_title, data_div_type, data_div_value);
+    update_data_div();
 
     /* select g.map (take a look at the index.html - it is the "g" tag of class
      * "map" inside the svg tag), parse through all the data we get through
@@ -66,9 +66,12 @@ function update() {
 
     u.attr("fill", d =>
            heat_colour(minmax)(
-               get_age_data_by_county_and_age_group
-               (d.properties.LnNamn,agespan))
+           get_age_data_by_age_group_and_county_per_capita(d.properties.LnNamn,
+                                                           agespan))
        )
+    
+    d3.select("#legend svg").remove();
+    spawn_legend("#legend", minmax);
 }
 
 /* Constructs the map on the *first* run */
@@ -99,9 +102,8 @@ function draw_map(){
 
     /* Set some initial values */
     d3.select("select#ageselect").node().value = agespan; // selector
-    data_div_title="Västra Götalands län"; // select the county
-
-//    add_legend("#legend");
+    lan_name = "Västra Götalands län";
+    update_data_div();
 
     add_table(age_data, "div#table");
     /* add colours to the map */
