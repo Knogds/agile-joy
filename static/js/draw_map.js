@@ -19,13 +19,15 @@ function update_data_div(){
     let ratio = get_age_data_by_age_group_and_county_per_capita(lan_name, agespan);
 
     data_div_title = lan_name;
+    data_div_subtitle = "Åldersgrupp: " + agespan;
     data_div_row0 = "Antal vaccinerade: " + lan_cases;
-    data_div_row1 = "Befolkning " + agespan + ": " + lan_population;
+    data_div_row1 = "Befolkning: " + lan_population;
     data_div_row2 = "Antal vaccinerade per capita: "
                         + d3.format(".2%")(ratio);
 
     d3.select("#data_div")
         .html('<div class="data title">' + data_div_title + '</div>' +
+              '<div class="data subtitle">' + data_div_subtitle + '</div>' +
               '<div class="data row0">' + data_div_row0 + '</div>' +
               '<div class="data row1">' + data_div_row1 + '</div>' +
               '<div class="data row2">' + data_div_row2 + '</div>')

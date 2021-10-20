@@ -28,12 +28,23 @@ function handle_ageselect() {
 
 var display_table = 0;
 function handle_button_toggle_table() {
-    if(display_table == 0){
+    if(display_table == 0) {
        display_table = 1;
-       d3.select("div#table").style("visibility", "visible"); 
-    }else {
+       d3.select("div#table")
+            .style("opacity", 0)
+            .style("visibility", "visible") 
+            .transition()
+            .duration(1000)
+            .style("opacity", 0.9);
+    } else {
        display_table = 0;
-       d3.select("div#table").style("visibility", "hidden"); 
+       d3.select("div#table")
+            .style("opacity", 0.9)
+            .transition()
+            .duration(1000)
+            .style("opacity", 0)
+            .transition()
+            .style("visibility", "hidden"); 
     }
 }
 

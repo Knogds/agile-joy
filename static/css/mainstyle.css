@@ -21,29 +21,29 @@ svg {
 
 .data {
     letter-spacing:-0.06em;
-    font-size:1.5em;
     float:left;
     width:100%;
 }
 
 .title {
+    font-size:1.5em;
     font-weight:bold;
 }
 
+.subtitle {
+    margin: 0.5em 0 0.3em 0;
+}
+
 .row0 {
-    font-size:1em;
+    margin: 0 0 0.3em 0;
 }
 
 .row1 {
-    font-size:1em;
+    margin: 0 0 0.6em;
 }
 
 .row2 {
-    font-size:1em;
-}
-
-.row3 {
-    font-size:1em;
+    font-weight: bold;
 }
 
 .datum {
